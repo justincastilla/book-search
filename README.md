@@ -1,0 +1,1 @@
+This is a companion repository for the article *Navigating an Elastic Vector Database* found [Navigating an Elastic Vector Database](). This contains all of the necessary instructions to operate a vector database with Elasticsearch
