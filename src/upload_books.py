@@ -89,7 +89,7 @@ def create_books_index():
         es.indices.create(index=INDEX_NAME, body=mappings)
 
 def bulk_ingest_books():
-    chunk_size = 100
+    chunk_size = 1000
 
     file_path = "../data/books_listed_genres.json"
     
@@ -123,19 +123,21 @@ def bulk_ingest_books():
         logger.error(f"Error occurred while ingesting books: {e}")
         logger.error(e.errors)
 
+resp = es.inference.put(
+    task_type="text_embedding",
+    inference_id="sentence-transformers__msmarco-minilm-l-12-v3",
+    inference_config={
+        "service": "elasticsearch",
+        "service_settings": {
+            "num_allocations": 2,
+            "num_threads": 4,
+            "model_id": "sentence-transformers__msmarco-minilm-l-12-v3"
+        }
+    },
+)
+print(resp)
 
-def check_document_count():
-    INDEX_NAME = "books_parallel"
-    response = es.count(index=INDEX_NAME)
-    logger.info(f"Document count in '{INDEX_NAME}' index: {response['count']}")
-    # try:
-    #     helpers.parallel_bulk(es, actions, thread_count=4)
-    #     print(f"Successfully ingested {len(actions)} books into the '{INDEX_NAME}' index.")
-    # except BulkIndexError as e:
-    #     logger.error(f"Error occurred while ingesting books: {e}")
-    #     logger.error(e.errors)
 
 # create_ingest_pipeline()
 create_books_index()
 bulk_ingest_books()
-check_document_count()
