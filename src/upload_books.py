@@ -3,7 +3,7 @@ from elasticsearch import Elasticsearch, helpers
 from dotenv import load_dotenv
 import logging
 import json
-import json
+
 
 load_dotenv(override=True)
 
