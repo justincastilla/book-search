@@ -9,3 +9,4 @@ Repository contents:
 
 - `src/upload_books`: creates an index within Elasticsearch and uploads book documents in bulk and individually. Also creates an ingest pipeline to embed vectors as they are indexed in Elasticsearch
 
+- 'ingest pipeline'
