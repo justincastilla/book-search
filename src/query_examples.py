@@ -6,14 +6,6 @@ import logging
 
 load_dotenv(override=True)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-
 INDEX_NAME = os.environ.get("INDEX_NAME")
 MODEL_ID = os.environ.get("MODEL_ID")
 
@@ -30,7 +22,6 @@ def execute_query(query_string):
             },
         },
     )
-
     return search_result
 
 

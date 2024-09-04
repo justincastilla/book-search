@@ -75,7 +75,6 @@ def create_books_index():
     }
     if not es.indices.exists(index=INDEX_NAME):
         es.indices.create(index=INDEX_NAME, body=mappings)
-        print(f"Index '{INDEX_NAME}' created.")
         logger.info(f"Index '{INDEX_NAME}' created.")
     else:
         es.indices.delete(index=INDEX_NAME)
