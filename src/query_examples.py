@@ -1,6 +1,7 @@
 import os
 from elasticsearch import Elasticsearch
 from dotenv import load_dotenv
+from elastic_client import es
 import logging
 
 load_dotenv(override=True)
@@ -13,21 +14,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-CLOUD_ID = os.environ.get("CLOUD_ID")
-ELASTIC_USERNAME = os.environ.get("ELASTIC_USERNAME")
-ELASTIC_PASSWORD = os.environ.get("ELASTIC_PASSWORD")
-
 INDEX_NAME = os.environ.get("INDEX_NAME")
 MODEL_ID = os.environ.get("MODEL_ID")
-
-es = Elasticsearch(
-    cloud_id=CLOUD_ID,
-    basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),  # type: ignore
-    request_timeout=60,  # Increase the timeout to 60 seconds
-    max_retries=10,  # Increase the number of retries
-    retry_on_timeout=True,  # Enable retry on timeout
-)
 
 
 def execute_query(query_string):
@@ -46,6 +34,14 @@ def execute_query(query_string):
     return search_result
 
 
+def full_text_search(query_string):
+    search_result = es.search(
+        index=INDEX_NAME, body={"query": {"match": {"book_description": query_string}}}
+    )
+
+    return search_result
+
+
 def print_results(search_result):
     for hit in search_result["hits"]["hits"]:
         print(f"Book: {hit['_source']['book_title']}")
@@ -56,4 +52,5 @@ def print_results(search_result):
 
 
 results = execute_query("I want to read a book about zombies fighting aliens.")
+# results = full_text_search("Dinosaurs")
 print_results(results)

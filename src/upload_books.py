@@ -1,9 +1,10 @@
 import os
-from elasticsearch import Elasticsearch, helpers
-from dotenv import load_dotenv
 import logging
 import json
+from dotenv import load_dotenv
 
+from elastic_client import es
+from elasticsearch import helpers
 
 load_dotenv(override=True)
 
@@ -14,25 +15,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-CLOUD_ID = os.environ.get("CLOUD_ID")
-ELASTIC_USERNAME = os.environ.get("ELASTIC_USERNAME")
-ELASTIC_PASSWORD = os.environ.get("ELASTIC_PASSWORD")
-
 INDEX_NAME = os.environ.get("INDEX_NAME")
 MODEL_ID = os.environ.get("MODEL_ID")
-
 file_path = "../data/books.json"
 
-es = Elasticsearch(
-    cloud_id=CLOUD_ID,
-    basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),
-    request_timeout=60,  # Increase the timeout to 60 seconds
-    max_retries=10,  # Increase the number of retries
-    retry_on_timeout=True,  # Enable retry on timeout
-)
 
-
-# create an ingest pipeline to convert book description to a vector
 def create_ingest_pipeline():
     resp = es.ingest.put_pipeline(
         id="text-embedding",
