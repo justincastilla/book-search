@@ -44,9 +44,9 @@ def create_ingest_pipeline():
                     "input_output": [
                         {
                             "input_field": "book_description",
-                            "output_field": "description_embedding"
+                            "output_field": "description_embedding",
                         }
-                    ]
+                    ],
                 }
             }
         ],
@@ -71,67 +71,66 @@ def create_ingest_pipeline():
 
 
 def create_books_index():
-  mappings = {
-      "mappings": {
-          "properties": {
-              "book_title": {"type": "text"},
-              "author_name": {"type": "text"},
-              "rating_score": {"type": "float"},
-              "rating_votes": {"type": "integer"},
-              "review_number": {"type": "integer"},
-              "book_description": {"type": "text"},
-              "genres": {"type": "keyword"},
-              "year_published": {"type": "integer"},
-              "url": {"type": "text"},
-          }
-      }
-  }
-  if not es.indices.exists(index=INDEX_NAME):
-      es.indices.create(index=INDEX_NAME, body=mappings)
-      print(f"Index '{INDEX_NAME}' created.")
-      logger.info(f"Index '{INDEX_NAME}' created.")
-  else:
-      es.indices.delete(index=INDEX_NAME)
-      logger.info(
-          f"Index '{INDEX_NAME}' already exists. Deleting and recreating the index."
-      )
-      es.indices.delete(index=f"failed-{INDEX_NAME}", ignore_unavailable=True)
-      logger.info(f"Index 'failed-{INDEX_NAME}' deleted.")
-      es.indices.create(index=INDEX_NAME, body=mappings)
-      logger.info(f"Index '{INDEX_NAME}' created.")
+    mappings = {
+        "mappings": {
+            "properties": {
+                "book_title": {"type": "text"},
+                "author_name": {"type": "text"},
+                "rating_score": {"type": "float"},
+                "rating_votes": {"type": "integer"},
+                "review_number": {"type": "integer"},
+                "book_description": {"type": "text"},
+                "genres": {"type": "keyword"},
+                "year_published": {"type": "integer"},
+                "url": {"type": "text"},
+            }
+        }
+    }
+    if not es.indices.exists(index=INDEX_NAME):
+        es.indices.create(index=INDEX_NAME, body=mappings)
+        print(f"Index '{INDEX_NAME}' created.")
+        logger.info(f"Index '{INDEX_NAME}' created.")
+    else:
+        es.indices.delete(index=INDEX_NAME)
+        logger.info(
+            f"Index '{INDEX_NAME}' already exists. Deleting and recreating the index."
+        )
+        es.indices.delete(index=f"failed-{INDEX_NAME}", ignore_unavailable=True)
+        logger.info(f"Index 'failed-{INDEX_NAME}' deleted.")
+        es.indices.create(index=INDEX_NAME, body=mappings)
+        logger.info(f"Index '{INDEX_NAME}' created.")
 
 
 def create_one_book(book):
-  try:
-    es.index(
-      index=INDEX_NAME,
-      id=book.get("id", None),
-      body=book,
-      pipeline="text-embedding"
-    )
-    logger.info(f"Successfully indexed book: {book.get('book_title', None)}")
-  except Exception as e:
-    logger.error(f"Error occurred while indexing book: {e}")
+    try:
+        es.index(
+            index=INDEX_NAME,
+            id=book.get("id", None),
+            body=book,
+            pipeline="text-embedding",
+        )
+        logger.info(f"Successfully indexed book: {book.get('book_title', None)}")
+    except Exception as e:
+        logger.error(f"Error occurred while indexing book: {e}")
 
 
 def bulk_ingest_books():
-  
 
-  with open(file_path, "r") as file:
-    books = json.load(file)
+    with open(file_path, "r") as file:
+        books = json.load(file)
 
-  actions = [
-    {"_index": INDEX_NAME, "_id": book.get("id", None), "_source": book}
-    for book in books
-  ]
+    actions = [
+        {"_index": INDEX_NAME, "_id": book.get("id", None), "_source": book}
+        for book in books
+    ]
 
-  try:
-    helpers.bulk(es, actions, pipeline="text-embedding", chunk_size=1000)
-    logger.info(f"Successfully ingested books into the '{INDEX_NAME}' index.")
+    try:
+        helpers.bulk(es, actions, pipeline="text-embedding", chunk_size=1000)
+        logger.info(f"Successfully ingested books into the '{INDEX_NAME}' index.")
 
-  except helpers.BulkIndexError as e:
-    logger.error(f"Error occurred while ingesting books: {e}")
-    logger.error(e.errors)
+    except helpers.BulkIndexError as e:
+        logger.error(f"Error occurred while ingesting books: {e}")
+        logger.error(e.errors)
 
 
 create_ingest_pipeline()

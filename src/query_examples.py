@@ -23,7 +23,7 @@ MODEL_ID = os.environ.get("MODEL_ID")
 
 es = Elasticsearch(
     cloud_id=CLOUD_ID,
-    basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD), # type: ignore
+    basic_auth=(ELASTIC_USERNAME, ELASTIC_PASSWORD),  # type: ignore
     request_timeout=60,  # Increase the timeout to 60 seconds
     max_retries=10,  # Increase the number of retries
     retry_on_timeout=True,  # Enable retry on timeout
@@ -31,19 +31,19 @@ es = Elasticsearch(
 
 
 def execute_query(query_string):
-  search_result = es.search(
-  index=INDEX_NAME,
-    knn={
-      "field": "description_embedding",
-      "k": 10,
-      "num_candidates": 50,
-      "query_vector_builder": {
-        "text_embedding": {"model_id": MODEL_ID, "model_text": query_string}
-      },
-    }
-  )
-  
-  return search_result
+    search_result = es.search(
+        index=INDEX_NAME,
+        knn={
+            "field": "description_embedding",
+            "k": 10,
+            "num_candidates": 50,
+            "query_vector_builder": {
+                "text_embedding": {"model_id": MODEL_ID, "model_text": query_string}
+            },
+        },
+    )
+
+    return search_result
 
 
 def print_results(search_result):
