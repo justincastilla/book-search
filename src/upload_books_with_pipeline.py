@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 from elastic_client import es
 from elasticsearch import helpers
 
+from sentence_transformers import SentenceTransformer
+
+
 load_dotenv(override=True)
 
 logging.basicConfig(
@@ -15,10 +18,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-INDEX_NAME = os.environ.get("INDEX_NAME")
+INDEX_NAME = f"{os.environ.get('INDEX_NAME')}-cloud"
 MODEL_ID = os.environ.get("MODEL_ID")
-file_path = "../data/books.json"
-
 
 def create_ingest_pipeline():
     resp = es.ingest.put_pipeline(
@@ -73,6 +74,7 @@ def create_books_index():
             }
         }
     }
+
     if not es.indices.exists(index=INDEX_NAME):
         es.indices.create(index=INDEX_NAME, body=mappings)
         logger.info(f"Index '{INDEX_NAME}' created.")
@@ -83,25 +85,26 @@ def create_books_index():
         )
         es.indices.delete(index=f"failed-{INDEX_NAME}", ignore_unavailable=True)
         logger.info(f"Index 'failed-{INDEX_NAME}' deleted.")
+
         es.indices.create(index=INDEX_NAME, body=mappings)
         logger.info(f"Index '{INDEX_NAME}' created.")
 
-
 def create_one_book(book):
+
     try:
-        es.index(
+        resp = es.index(
             index=INDEX_NAME,
             id=book.get("id", None),
             body=book,
             pipeline="text-embedding",
         )
-        logger.info(f"Successfully indexed book: {book.get('book_title', None)}")
+
+        logger.info(f"Successfully indexed book: {book.get('book_title', None)} - Result: {resp.get('result', None)}")
+
     except Exception as e:
         logger.error(f"Error occurred while indexing book: {e}")
 
-
-def bulk_ingest_books():
-
+def bulk_ingest_books(file_path="../data/books.json"):
     with open(file_path, "r") as file:
         books = json.load(file)
 
@@ -116,13 +119,13 @@ def bulk_ingest_books():
 
     except helpers.BulkIndexError as e:
         logger.error(f"Error occurred while ingesting books: {e}")
-        logger.error(e.errors)
 
 
 create_ingest_pipeline()
 create_books_index()
 bulk_ingest_books()
 
+
 with open("../data/fake_book.json", "r") as file:
     fake_book = json.load(file)
-    create_one_book(fake_book)
+    create_one_book(fake_book[0])

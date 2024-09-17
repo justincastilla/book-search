@@ -6,16 +6,16 @@ import logging
 
 load_dotenv(override=True)
 
-INDEX_NAME = os.environ.get("INDEX_NAME")
+INDEX_NAME = f'{os.environ.get("INDEX_NAME")}-cloud'
 MODEL_ID = os.environ.get("MODEL_ID")
 
 
-def execute_query(query_string):
+def vector_search(query_string):
     search_result = es.search(
         index=INDEX_NAME,
         knn={
             "field": "description_embedding",
-            "k": 10,
+            "k": 4,
             "num_candidates": 50,
             "query_vector_builder": {
                 "text_embedding": {"model_id": MODEL_ID, "model_text": query_string}
@@ -32,8 +32,40 @@ def full_text_search(query_string):
 
     return search_result
 
+def hybrid_search(query_string):
+    search_result = es.search(
+        index=INDEX_NAME,
+        body={
+            "query": {
+                "bool": {
+                    "must": [
+                        {"multi_match": 
+                            {
+                                "query": query_string,
+                                "fields": ["book_title", "author_name", "book_description"]
+                            }
+                        },
+                    ]
+                }
+            },
+            "knn": {
+                "field": "description_embedding",
+                "k": 10,
+                "query_vector_builder": {
+                    "text_embedding": {"model_id": MODEL_ID, "model_text": query_string}
+                },
+            },
+            "rank": {
+                "rrf": {}
+            },
+            "size": 10
+        },
+    )
+    return search_result
+
 
 def print_results(search_result):
+    print(f"Total hits: {search_result['hits']['total']['value']}")
     for hit in search_result["hits"]["hits"]:
         print(f"Book: {hit['_source']['book_title']}")
         print(f"Author: {hit['_source']['author_name']}")
@@ -42,6 +74,8 @@ def print_results(search_result):
         print("")
 
 
-results = execute_query("I want to read a book about zombies fighting aliens.")
-# results = full_text_search("Dinosaurs")
-print_results(results)
+# results = vector_search("Shattered World")
+# results = full_text_search("whale")
+hybrid_results  = hybrid_search("Dinosaurs attack humans")
+# print_results(results)
+print_results(hybrid_results)
