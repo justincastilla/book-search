@@ -64,5 +64,5 @@ Update and rename this file to only `.env`. Provide your own credentials for the
       ```
   4. Modify the query parameters within the script to test different search criteria and observe the results.
 
-### `notebooks`
+### `notebooks/`
 Python notebooks have been provided of the above python scripts for more interactivity.
