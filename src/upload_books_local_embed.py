@@ -134,7 +134,7 @@ if __name__ == "__main__":
     create_books_index()
     bulk_ingest_books()
 
-    # embed_descriptions('../data/fake_book.json', '../data/fake_book_embedded.json')
-    with open('../data/fake_book_embedded.json', "r") as file:
-        fake_book = json.load(file)
-        create_one_book(fake_book[0])   
+    embed_descriptions('../data/one_book.json', '../data/one_book_embedded.json')
+    with open("../data/one_book.json", "r") as file:
+        book = json.load(file)
+        create_one_book(book) 

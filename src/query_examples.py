@@ -2,11 +2,10 @@ import os
 from elasticsearch import Elasticsearch
 from dotenv import load_dotenv
 from elastic_client import es
-import logging
 
 load_dotenv(override=True)
 
-INDEX_NAME = f'{os.environ.get("INDEX_NAME")}-cloud'
+INDEX_NAME = f'{os.environ.get("INDEX_NAME")}'
 MODEL_ID = os.environ.get("MODEL_ID")
 
 
@@ -15,7 +14,7 @@ def vector_search(query_string):
         index=INDEX_NAME,
         knn={
             "field": "description_embedding",
-            "k": 4,
+            "k": 10,
             "num_candidates": 50,
             "query_vector_builder": {
                 "text_embedding": {"model_id": MODEL_ID, "model_text": query_string}
@@ -74,8 +73,8 @@ def print_results(search_result):
         print("")
 
 
-# results = vector_search("Shattered World")
+results = vector_search("Dinosaurs are still alive")
 # results = full_text_search("whale")
-hybrid_results  = hybrid_search("Dinosaurs attack humans")
+# hybrid_results  = hybrid_search("Dinosaurs attack humans")
 # print_results(results)
-print_results(hybrid_results)
+print_results(results)

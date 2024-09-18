@@ -126,6 +126,6 @@ create_books_index()
 bulk_ingest_books()
 
 
-with open("../data/fake_book.json", "r") as file:
-    fake_book = json.load(file)
-    create_one_book(fake_book[0])
+with open("../data/one_book.json", "r") as file:
+    book = json.load(file)
+    create_one_book(book)
