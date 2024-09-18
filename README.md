@@ -8,9 +8,9 @@ Update and rename this file to only `.env`. Provide your own credentials for the
 
 ### `src/`
 
-- `src/elastic_client.py`: connector to Elasticsearch. Draws credentials from the above `.env` file.
+#### `src/elastic_client.py`: connector to Elasticsearch. Draws credentials from the above `.env` file.
 
-- `src/upload_books_local_embed.py`: scripts to upload books to Elasticsearch with local embedding.
+#### `src/upload_books_local_embed.py`: scripts to upload books to Elasticsearch with local embedding.
   This file will run an embedding model locally to create vectors for each book object. The new books list with vectors will then be indexed into Elasticsearch.
 
   - **Functions**:
@@ -28,7 +28,7 @@ Update and rename this file to only `.env`. Provide your own credentials for the
        ```
     4. By default the script will run a small batch of books (25) for faster performance. Embedding and indexing the full `books.json` will take longer, but the search results will be more relevant. 
 
-- `src/upload_books_with_pipeline.py`: scripts to upload books to Elasticsearch with ingestion pipeline functionality.
+#### `src/upload_books_with_pipeline.py`: scripts to upload books to Elasticsearch with ingestion pipeline functionality.
     This file will create an inference ingestion pipeline to instruct Elasticsearch to create a vector embedding of all `book_description` fields that are indexed. This moves the embedding computation from the local machine to the Elasticsearch instance.
 - **Functions**:
   - `create_ingest_pipeline()`: Creates an inference ingestion pipeline to embed vectors when documents are indexed.
@@ -46,23 +46,23 @@ Update and rename this file to only `.env`. Provide your own credentials for the
   4. By default the script will run all books (10,908) as all embedding occurs on the Elasticsearch instance.
 
 
-  - `src/query_examples.py`: scripts to demonstrate various query examples for searching books in Elasticsearch.
-    This file contains three different types of search examples: traditional (bm25), vector, and hybrid search. Hybrid utilizes both search types then combines the results in a normalized ranking order.
+#### `src/query_examples.py`: scripts to demonstrate various query examples for searching books in Elasticsearch.
+  This file contains three different types of search examples: traditional (bm25), vector, and hybrid search. Hybrid utilizes both search types then combines the results in a normalized ranking order.
 
-    - **Functions**:
-      - `vector_search()`: performs a vector search with a given query string.
-      - `search()`: performs a traditional search.
-      - `hybrid_search(q)`: performs a hybrid search.
+  - **Functions**:
+    - `vector_search()`: performs a vector search with a given query string.
+    - `search()`: performs a traditional search.
+    - `hybrid_search(q)`: performs a hybrid search.
 
 
-    - **How to run**:
-      1. Ensure Elasticsearch is running locally.
-      2. Navigate to the `src/` directory.
-      3. Run the script using Python:
-         ```sh
-         python query_examples.py
-         ```
-      4. Modify the query parameters within the script to test different search criteria and observe the results.
+  - **How to run**:
+    1. Ensure Elasticsearch is running locally.
+    2. Navigate to the `src/` directory.
+    3. Run the script using Python:
+        ```sh
+        python query_examples.py
+        ```
+    4. Modify the query parameters within the script to test different search criteria and observe the results.
 
 ### `notebooks`
 Python notebooks have been provided of the above python scripts for more interactivity.
