@@ -1,3 +1,5 @@
+<img src="https://github.com/user-attachments/assets/b2879240-ae16-4544-ae67-3d261a67e2a1" width="50%"/>
+
 ## Elastic Book Search
 This is a companion repository for the article *Navigating an Elastic Vector Database* found [Navigating an Elastic Vector Database](). This contains all of the necessary instructions to create and operate a vector database with Elasticsearch.
 
