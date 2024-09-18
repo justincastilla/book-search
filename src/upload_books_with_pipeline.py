@@ -1,5 +1,4 @@
 import os
-import logging
 import json
 from dotenv import load_dotenv
 
@@ -11,16 +10,14 @@ from sentence_transformers import SentenceTransformer
 
 load_dotenv(override=True)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
+INDEX_NAME = f"{os.environ.get('INDEX_NAME')}-pipeline"
 
-INDEX_NAME = f"{os.environ.get('INDEX_NAME')}-cloud"
-MODEL_ID = os.environ.get("MODEL_ID")
+# Delete the indices if they already exist
+es.indices.delete(index=f"{INDEX_NAME}", ignore_unavailable=True)
+es.indices.delete(index=f"failed-{INDEX_NAME}", ignore_unavailable=True)
 
+# This function creates an ingest pipeline that uses the sentence-transformers library
+# to embed the book descriptions.
 def create_ingest_pipeline():
     resp = es.ingest.put_pipeline(
         id="text-embedding",
@@ -55,9 +52,9 @@ def create_ingest_pipeline():
             },
         ],
     )
-    logger.info(f"Created ingest pipeline: {resp}")
+    print(f"Created ingest pipeline: {resp}")
 
-
+# This function creates the Elasticsearch index with the appropriate mappings.
 def create_books_index():
     mappings = {
         "mappings": {
@@ -75,19 +72,9 @@ def create_books_index():
         }
     }
 
-    if not es.indices.exists(index=INDEX_NAME):
-        es.indices.create(index=INDEX_NAME, body=mappings)
-        logger.info(f"Index '{INDEX_NAME}' created.")
-    else:
-        es.indices.delete(index=INDEX_NAME)
-        logger.info(
-            f"Index '{INDEX_NAME}' already exists. Deleting and recreating the index."
-        )
-        es.indices.delete(index=f"failed-{INDEX_NAME}", ignore_unavailable=True)
-        logger.info(f"Index 'failed-{INDEX_NAME}' deleted.")
-
-        es.indices.create(index=INDEX_NAME, body=mappings)
-        logger.info(f"Index '{INDEX_NAME}' created.")
+    es.indices.create(index=INDEX_NAME, body=mappings)
+    print(f"Index '{INDEX_NAME}' created.")
+  
 
 def create_one_book(book):
 
@@ -99,10 +86,11 @@ def create_one_book(book):
             pipeline="text-embedding",
         )
 
-        logger.info(f"Successfully indexed book: {book.get('book_title', None)} - Result: {resp.get('result', None)}")
+        print(f"Successfully indexed book: {book.get('book_title', None)} - Result: {resp.get('result', None)}")
 
     except Exception as e:
-        logger.error(f"Error occurred while indexing book: {e}")
+        print(f"Error occurred while indexing book: {e}")
+
 
 def bulk_ingest_books(file_path="../data/books.json"):
     with open(file_path, "r") as file:
@@ -114,15 +102,16 @@ def bulk_ingest_books(file_path="../data/books.json"):
     ]
 
     try:
+        print(f"Indexing {len(actions)} documents...")
         helpers.bulk(es, actions, pipeline="text-embedding", chunk_size=1000)
-        logger.info(f"Successfully ingested books into the '{INDEX_NAME}' index.")
+        print(f"Successfully ingested books into the '{INDEX_NAME}' index.")
 
     except helpers.BulkIndexError as e:
-        logger.error(f"Error occurred while ingesting books: {e}")
+        print(f"Error occurred while ingesting books: {e}")
 
 
-create_ingest_pipeline()
 create_books_index()
+create_ingest_pipeline()
 bulk_ingest_books()
 
 

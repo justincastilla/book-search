@@ -72,9 +72,8 @@ def print_results(search_result):
         print(f"Score: {hit['_score']}")
         print("")
 
-
-results = vector_search("Dinosaurs are still alive")
-# results = full_text_search("whale")
-# hybrid_results  = hybrid_search("Dinosaurs attack humans")
-# print_results(results)
-print_results(results)
+query_string = "Dinosaurs are still alive"
+vector_results = vector_search(query_string)
+# bm25_results = bm25_search(query_string)
+# hybrid_results  = hybrid_search(query_string")
+print_results(vector_results)
