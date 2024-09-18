@@ -20,16 +20,16 @@ Update and rename this file to only `.env`. Provide your own credentials for the
     - `upload_single_book()`: Uploads a single book document to the Elasticsearch index.
 
   - **How to run**:
-    1. Ensure Elasticsearch is running locally.
-    2. Navigate to the `src/` directory.
-    3. Run the script using Python:
-       ```sh
-       python upload_books_local_embed.py
-       ```
-    4. By default the script will run a small batch of books (25) for faster performance. Embedding and indexing the full `books.json` will take longer, but the search results will be more relevant. 
+  1. Ensure Elasticsearch is running locally.
+  2. Navigate to the `src/` directory.
+  3. Run the script using Python:
+      ```sh
+      python upload_books_local_embed.py
+      ```
+  4. By default the script will run a small batch of books (25) for faster performance. Embedding and indexing the full `books.json` will take longer, but the search results will be more relevant. 
 
 #### `src/upload_books_with_pipeline.py`: scripts to upload books to Elasticsearch with ingestion pipeline functionality.
-    This file will create an inference ingestion pipeline to instruct Elasticsearch to create a vector embedding of all `book_description` fields that are indexed. This moves the embedding computation from the local machine to the Elasticsearch instance.
+  This file will create an inference ingestion pipeline to instruct Elasticsearch to create a vector embedding of all `book_description` fields that are indexed. This moves the embedding computation from the local machine to the Elasticsearch instance.
 - **Functions**:
   - `create_ingest_pipeline()`: Creates an inference ingestion pipeline to embed vectors when documents are indexed.
   - `create_index()`: Creates the Elasticsearch index `books-pipeline` for storing book documents.
@@ -37,13 +37,13 @@ Update and rename this file to only `.env`. Provide your own credentials for the
   - `upload_single_book()`: Uploads a single book document to the Elasticsearch index.
 
 - **How to run**:
-  1. Ensure Elasticsearch is running locally.
-  2. Navigate to the `src/` directory.
-  3. Run the script using Python:
-     ```sh
-     python upload_books_with_pipeline.py
-     ```
-  4. By default the script will run all books (10,908) as all embedding occurs on the Elasticsearch instance.
+1. Ensure Elasticsearch is running locally.
+2. Navigate to the `src/` directory.
+3. Run the script using Python:
+    ```sh
+    python upload_books_with_pipeline.py
+    ```
+4. By default the script will run all books (10,908) as all embedding occurs on the Elasticsearch instance.
 
 
 #### `src/query_examples.py`: scripts to demonstrate various query examples for searching books in Elasticsearch.
@@ -56,13 +56,13 @@ Update and rename this file to only `.env`. Provide your own credentials for the
 
 
   - **How to run**:
-    1. Ensure Elasticsearch is running locally.
-    2. Navigate to the `src/` directory.
-    3. Run the script using Python:
-        ```sh
-        python query_examples.py
-        ```
-    4. Modify the query parameters within the script to test different search criteria and observe the results.
+  1. Ensure Elasticsearch is running locally.
+  2. Navigate to the `src/` directory.
+  3. Run the script using Python:
+      ```sh
+      python query_examples.py
+      ```
+  4. Modify the query parameters within the script to test different search criteria and observe the results.
 
 ### `notebooks`
 Python notebooks have been provided of the above python scripts for more interactivity.
