@@ -6,7 +6,7 @@ This is a companion repository for the article *Navigating an Elastic Vector Dat
 Repository contents:
 
 ### `example.env`
-Update and rename this file to only `.env`. Provide your own credentials for the Elastic Cloud ID and Elastic API Key. The default index name for this repository is set to `books`
+Update and rename this file to only `.env`. Provide your own credentials for the Elasticsearch Endpoint and Elastic API Key. The default index name for this repository is set to `books`
 
 ### `src/`
 
