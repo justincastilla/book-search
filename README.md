@@ -31,7 +31,10 @@ Update and rename this file to only `.env`. Provide your own credentials for the
   4. By default the script will run a small batch of books (25) for faster performance. Embedding and indexing the full `books.json` will take longer, but the search results will be more relevant. 
 
 #### `src/upload_books_with_pipeline.py`: scripts to upload books to Elasticsearch with ingestion pipeline functionality.
-  This file will create an inference ingestion pipeline to instruct Elasticsearch to create a vector embedding of all `book_description` fields that are indexed. This moves the embedding computation from the local machine to the Elasticsearch instance.
+  This file will create an inference ingestion pipeline to instruct Elasticsearch to create a vector embedding of all `book_description` fields that are indexed. This moves the embedding computation from the local machine to the Elasticsearch instance.  
+
+  Note: you will need to upload and deploy the embedding model to Elasticsearch via the execution of a Docker image. Full instructions are available [here](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-text-emb-vector-search-example.html).
+  
 - **Functions**:
   - `create_ingest_pipeline()`: Creates an inference ingestion pipeline to embed vectors when documents are indexed.
   - `create_index()`: Creates the Elasticsearch index `books-pipeline` for storing book documents.
