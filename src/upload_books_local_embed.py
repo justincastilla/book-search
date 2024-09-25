@@ -10,7 +10,6 @@ if __name__ == "__main__":
 
     from sentence_transformers import SentenceTransformer
 
-
     load_dotenv(override=True)
 
     INDEX_NAME = f"{os.environ.get('INDEX_NAME')}-local"
@@ -20,7 +19,9 @@ if __name__ == "__main__":
 
     # This function embeds the book descriptions using the sentence-transformers library locally
     # and saves the embedded descriptions to a new file.
-    def embed_descriptions(file_path="../data/books.json", output_path="../data/books_embedded.json"):
+    def embed_descriptions(
+        file_path="../data/books.json", output_path="../data/books_embedded.json"
+    ):
 
         model = SentenceTransformer("sentence-transformers/msmarco-MiniLM-L-12-v3")
         print("Model loaded for embedding...")
@@ -28,7 +29,7 @@ if __name__ == "__main__":
         with open(file_path, "r") as file:
             books = json.load(file)
         print(f"Loading books from file {file_path} for embedding...")
-        
+
         book_descriptions = [book["book_description"] for book in books]
         embedded_books = []
 
@@ -38,7 +39,7 @@ if __name__ == "__main__":
         print("Starting multi-process pool for embedding...")
         embedded_books = model.encode_multi_process(book_descriptions, pool)
         print("Embeddings computed. Shape:", embedded_books.shape)
-        
+
         model.stop_multi_process_pool(pool)
         print("Stopping multi-process pool...")
 
@@ -50,17 +51,15 @@ if __name__ == "__main__":
             new_books.append(book)
         print("Embeddings added to books.")
 
-
         # Write the embedded books to a new array of documents named books_embeded.json
         with open(output_path, "w") as file:
-            file.write('[')
+            file.write("[")
             for i, book in enumerate(new_books):
                 json.dump(book, file)
                 if i != len(new_books) - 1:
-                    file.write(',')                  
-            file.write(']')
+                    file.write(",")
+            file.write("]")
         print(f"{len(new_books)} embedded books saved to file: {output_path}.")
-
 
     # This function creates the Elasticsearch index with the appropriate mappings.
     def create_books_index():
@@ -77,17 +76,13 @@ if __name__ == "__main__":
                     "genres": {"type": "keyword"},
                     "year_published": {"type": "integer"},
                     "url": {"type": "text"},
-                    "description_embedding" : {
-                        "type": "dense_vector",
-                        "dims": 384
-                    }
+                    "description_embedding": {"type": "dense_vector", "dims": 384},
                 }
             }
         }
 
         es.indices.create(index=INDEX_NAME, body=mappings)
         print(f"Index '{INDEX_NAME}' created.")
-
 
     def create_one_book(book):
 
@@ -98,12 +93,14 @@ if __name__ == "__main__":
                 body=book,
             )
 
-            print(f"Successfully indexed book {book["book_title"]}! Result: {resp.get('result', None)}")
+            print(
+                f'Successfully indexed book {book["book_title"]}! Result: {resp.get("result", None)}'
+            )
 
         except Exception as e:
             print(f"Error occurred while indexing book: {e}")
 
-    # This function ingests the books from the books_embedded.json file into the Elasticsearch index. 
+    # This function ingests the books from the books_embedded.json file into the Elasticsearch index.
     def bulk_ingest_books(file_path="../data/books_embedded.json"):
 
         with open(file_path, "r") as file:
@@ -118,9 +115,11 @@ if __name__ == "__main__":
 
         try:
             # Use the helpers.bulk() function to bulk ingest the books into the Elasticsearch index.
-            # 
+            #
             helpers.bulk(es, actions, chunk_size=1000)
-            print(f"Successfully added {len(actions)} books into the '{INDEX_NAME}' index.")
+            print(
+                f"Successfully added {len(actions)} books into the '{INDEX_NAME}' index."
+            )
 
         except helpers.BulkIndexError as e:
             print(f"Error occurred while ingesting books: {e}")
@@ -129,12 +128,12 @@ if __name__ == "__main__":
     create_books_index()
 
     # embed and index a small sample of books
-    file_path = '../data/small_books.json'
-    output_path = '../data/small_books_embedded.json'
+    file_path = "../data/small_books.json"
+    output_path = "../data/small_books_embedded.json"
     embed_descriptions(file_path, output_path)
     bulk_ingest_books(file_path)
 
     # Index a single book with embedding already created
     with open("../data/one_book_embedded.json", "r") as file:
         book = json.load(file)
-        create_one_book(book) 
+        create_one_book(book)

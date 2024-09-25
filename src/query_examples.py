@@ -5,7 +5,10 @@ from elastic_client import es
 
 load_dotenv(override=True)
 
-INDEX_NAME = f'{os.environ.get("INDEX_NAME")}'
+# This file uses the 'books-pipeline' index, which is created in the 'upload_books_local_embed.py' file.
+# If you wish to use the 'books-local' index, change the below line to:
+#  'INDEX_NAME = f"{os.environ.get('INDEX_NAME')}-local"'
+INDEX_NAME = f'{os.environ.get("INDEX_NAME")}-pipeline'
 MODEL_ID = os.environ.get("MODEL_ID")
 
 
@@ -24,12 +27,13 @@ def vector_search(query_string):
     return search_result
 
 
-def full_text_search(query_string):
+def search(query_string):
     search_result = es.search(
         index=INDEX_NAME, body={"query": {"match": {"book_description": query_string}}}
     )
 
     return search_result
+
 
 def hybrid_search(query_string):
     search_result = es.search(
@@ -38,10 +42,14 @@ def hybrid_search(query_string):
             "query": {
                 "bool": {
                     "must": [
-                        {"multi_match": 
-                            {
+                        {
+                            "multi_match": {
                                 "query": query_string,
-                                "fields": ["book_title", "author_name", "book_description"]
+                                "fields": [
+                                    "book_title",
+                                    "author_name",
+                                    "book_description",
+                                ],
                             }
                         },
                     ]
@@ -54,10 +62,8 @@ def hybrid_search(query_string):
                     "text_embedding": {"model_id": MODEL_ID, "model_text": query_string}
                 },
             },
-            "rank": {
-                "rrf": {}
-            },
-            "size": 10
+            "rank": {"rrf": {}},
+            "size": 10,
         },
     )
     return search_result
@@ -72,8 +78,11 @@ def print_results(search_result):
         print(f"Score: {hit['_score']}")
         print("")
 
+
 query_string = "Dinosaurs are still alive"
 vector_results = vector_search(query_string)
-# bm25_results = bm25_search(query_string)
-# hybrid_results  = hybrid_search(query_string")
 print_results(vector_results)
+bm25_results = search(query_string)
+print_results(bm25_results)
+hybrid_results = hybrid_search(query_string)
+print_results(hybrid_results)
